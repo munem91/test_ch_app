@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:test_ch_app/features/chat_list/domain/repository/abstract_conversation.dart';
+import 'package:test_ch_app/features/chat_list/domain/repository/conversations_repository.dart';
+import 'package:test_ch_app/features/user/domain/repository/user_repository.dart';
+import 'package:test_ch_app/start_app.dart';
 
 void main() {
-  runApp(const MyApp());
+  GetIt.instance.registerSingleton<ConversationsRepository>(
+    ConversationsRepository(),
+  );
+  runApp(const StartApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+
+
+// @override
+  // void initState() {
+  //   super.initState();
 
