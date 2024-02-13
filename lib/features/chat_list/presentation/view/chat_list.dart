@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test_ch_app/features/chat_list/presentation/cubit/chat_list_cubit.dart';
+import 'package:test_ch_app/features/chat_list/presentation/cubit/list_tile/conversation_list_tile_cubit.dart';
 import 'package:test_ch_app/features/user/domain/entities/user_entities.dart';
-import 'package:test_ch_app/theme/theme.dart';
-
-import '../../../user/domain/repository/user_repository.dart';
 import '../../domain/entities/conversation.dart';
+import '../cubit/chat_list/chat_list_cubit.dart';
 import '../widgets/widgets.dart';
 
 class ChatList extends StatelessWidget {
@@ -68,17 +66,51 @@ class ChatListPage extends StatelessWidget {
         ),
         itemCount: conversations.length,
         itemBuilder: (context, i) {
-          final Conversation conversation = conversations[i];
-          final User? user =
-              UserRepository().findUserById(conversation.peerUserId);
-
-          return ListTile(
-            title: Text(
-              '${user!.firstName} ${user.lastName}',
-              // ... rest of your ListTile content
-            ),
+          return BlocProvider<ConversationListTileCubit>(
+            create: (BuildContext context) =>
+                ConversationListTileCubit()..loadListTitle(conversations[i]),
+            child: const ConversationListTile(),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildError(String errorMessage) {
+    return Center(
+      child: Text("Failed to load conversations: $errorMessage"),
+    );
+  }
+}
+
+class ConversationListTile extends StatelessWidget {
+  const ConversationListTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ConversationListTileCubit, ConversationListTileState>(
+      builder: (context, state) {
+        return state.maybeWhen(
+          initial: () => _buildLoading(),
+          loaded: (User? user) => _buildLoaded(user),
+          error: (String errorMessage) => _buildError(errorMessage),
+          orElse: () => _buildLoading(),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildLoaded(User? user) {
+    return ListTile(
+      title: Text(
+        '${user?.firstName} ${user?.lastName}',
+        // ... rest of your ListTile content
       ),
     );
   }
